@@ -1,0 +1,142 @@
+.videos {
+  display: grid;
+  grid-template-columns: auto auto;
+  padding: 2%;
+  gap: 1rem;
+  justify-content: center; /* Center horizontally */
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  justify-content: center; /* Center horizontally */
+  gap: 1rem;
+  padding: 0.5rem;
+  align-items: center; /* Center vertically */
+}
+
+.newChat{
+  background-color: rgb(61, 159, 253);
+  border-radius: 0.5rem;
+  border: none;
+  width: 37.5%;
+  height: 10%;
+  font-size: inherit;
+  min-height: 30px;
+  min-width: 100px;
+  color: white;
+}
+
+.panel {
+  display: flexbox;
+  padding: 2%;
+  justify-content: center; /* Center horizontally */
+}
+
+.screen{
+  padding: 2%;
+  display: grid;
+  justify-content: center;
+  background-color: rgb(247, 239, 230);
+}
+
+.video-grid {
+  max-width: 400px;
+  width: 85%;
+  border-radius: 1rem;
+}
+
+.main{
+  display: grid;
+  grid-template-columns: 70% 30%;
+}
+
+canvas{
+  background-color: aquamarine;
+  max-width: fit-content;
+  width: 100%; 
+}
+
+.chatRoom {
+  display: grid;
+  justify-content: center;
+}
+
+@media only screen and (max-width: 1030px) {
+  .panel {
+    grid-template-columns: auto;
+  }
+  .buttons {
+    width: inherit;
+  }
+  .main{
+    grid-template-columns: auto;
+  }
+  .chatRoom{
+    width: 100%;
+  }
+}
+
+.leaveChat{
+  background-color: rgba(250, 59, 46, 1);
+  border-radius: 0.5rem;
+  border: none;
+  width: 37.5%;
+  height: 10%;
+  font-size: inherit;
+  min-height: 30px;
+  min-width: 100px;
+  color: white;
+}
+
+.textModeButton{
+  background-color: rgb(61, 159, 253);
+  border-radius: 0.5rem;
+  border: none;
+  width: 37.5%;
+  height: 10%;
+  font-size: inherit;
+  min-height: 30px;
+  min-width: 100px;
+  color: white;
+}
+
+html {
+  background-color: rgb(247, 239, 230);
+}
+
+.logOutButton{
+  background-color: rgba(250, 59, 46, 1);
+  border-radius: 0.5rem;
+  border: none;
+  width: 37.5%;
+  height: 10%;
+  font-size: inherit;
+  min-height: 30px;
+  min-width: 100px;
+  color: white;
+}
+
+.logInButton{
+  background-color: rgb(61, 159, 253);
+  border-radius: 0.5rem;
+  border: none;
+  width: 37.5%;
+  height: 10%;
+  font-size: inherit;
+  min-height: 30px;
+  min-width: 100px;
+  color: white;
+}
+
+.registerButton{
+  background-color: rgb(61, 159, 253);
+  border-radius: 0.5rem;
+  border: none;
+  width: 37.5%;
+  height: 10%;
+  font-size: inherit;
+  min-height: 30px;
+  min-width: 100px;
+  color: white;
+}
