@@ -22,7 +22,13 @@ const Buttons = ({ handleRoomSize, handleJoinChat }) => {
   };
 
   const handleLogout = () => {
+    deleteCookie("OmegleClone")
+    deleteCookie("OmegleCloneID")
     navigate("/login")
+  }
+
+  function deleteCookie(name) {
+    document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
   }
 
   return (

@@ -21,9 +21,10 @@ const VideoStreaming = (props) => {
     const socketRef = useRef();
     const userVideo = useRef();
     const peersRef = useRef([]);
-    const roomID = 100;
     const roomSize = props.roomSize
     const joinChat = props.joinChat
+    const username = props.username
+    const userID = props.userID
 
     useEffect(() => {
         socketRef.current = io.connect("http://localhost:3001/");
@@ -48,14 +49,14 @@ const VideoStreaming = (props) => {
           navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(str => {
             stream = str;
             userVideo.current.srcObject = stream;
-            socketRef.current.emit("join room", roomID);
+            socketRef.current.emit("join room", roomSize, userID, username);
             socketRef.current.on("all users", users => {
               console.log("all users")
               const peers = [];
-              users.forEach(userID => {
-                const peer = createPeer(userID, socketRef.current.id, stream);
+              users.forEach(user => {
+                const peer = createPeer(user.socketID, socketRef.current.id, stream);
                 peersRef.current.push({
-                  peerID: userID,
+                  peerID: user.socketID,
                   peer,
                 })
                 peers.push(peer);
@@ -97,7 +98,7 @@ const VideoStreaming = (props) => {
           handleBeforeUnload()
           window.removeEventListener('beforeunload', handleBeforeUnload);
         };
-      }, [joinChat]);
+      }, [joinChat, roomSize, userID, username]);
 
     function createPeer(userToSignal, callerID, stream) {
         const peer = new Peer({
@@ -132,8 +133,14 @@ const VideoStreaming = (props) => {
   return (
     <div className="videos" style={peers.length > 0 ? {display:"grid"} : {display: "flex"}}>
       {<video className="video-grid" playsInline muted ref={userVideo} autoPlay />}
-      {peers.map((peer, index) => (
-        <Video key={index} peer={peer}></Video>
+      {joinChat && peers.map((peer, index) => (
+        <div>
+          <Video key={index} peer={peer}></Video>
+          <div style={{justifySelf: 
+          "center"}}>
+            <button>Report</button>
+          </div>
+        </div>
       ))}
     </div>
   );

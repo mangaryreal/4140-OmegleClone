@@ -2,20 +2,36 @@ import React, { useState } from 'react'
 import { users } from '../demo-data/data' 
 import { useNavigate } from 'react-router-dom';
 
+function createCookie(name, value, days) {
+    let expires = "";
+    if (days) {
+      const date = new Date();
+      date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+      expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + value + expires + "; path=/";
+}
+
 const Login = () => {
     const [userID, setUserID] = useState("")
     const navigate = useNavigate()
 
     const handleLogin = (e) => {
-        // please do it here
-        const foundUser = users.find((user) => user.userID === parseInt(userID));
-        
+        const userID = parseInt(e.target.userID.value);
+      
+        const foundUser = users.find((user) => user.userID === userID);
+      
         if (foundUser) {
-            navigate("/")
+          const username = foundUser.username;
+
+          createCookie("OmegleClone", username, 0.25)
+          createCookie("OmegleCloneID", userID, 0.25)
+      
+          navigate("/");
         } else {
-            alert("User not found");
+          alert("User not found");
         }
-    }
+    };
 
 
     return (
