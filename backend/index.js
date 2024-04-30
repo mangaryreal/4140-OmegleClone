@@ -1,6 +1,11 @@
 const express = require("express");
 const http = require("http");
 const app = express();
+const cors = require("cors");
+app.use(cors())
+const register = require("./register");
+app.use(register);
+
 const server = http.createServer(app);
 // const socket = require("socket.io");
 const io = require("socket.io")(server, {
@@ -11,16 +16,16 @@ const io = require("socket.io")(server, {
 });
 
 
-const users = {};
+var users = {};
 
-const socketToRoom = {};
+var socketToRoom = {};
 
 io.on('connection', socket => {
   socket.on("join room", (roomSize, userID, username) => {
     const intRoomSize = parseInt(roomSize)
     // Find a room with the same room size
     let roomID = Object.keys(users).find(
-      key => users[key].roomSize === intRoomSize && key !== socketToRoom[socket.id]
+      key => users[key].roomSize === intRoomSize && key !== socketToRoom[socket.id] && users[key].roomSize > users[key].users.length
     );
   
     if (roomID) {
@@ -43,7 +48,76 @@ io.on('connection', socket => {
         socketID: user.socketID
       }));
   
-    socket.emit("all users", usersInThisRoom);
+    socket.emit("all users", usersInThisRoom, roomID);
+    // console.log(users)
+    console.log("called")
+  });
+
+  socket.on("switch room", (roomID, roomSize, userID, username) => {
+    const currentRoomID = roomID;
+    const currentRoom = users[currentRoomID];
+    console.log(currentRoom)
+    const currentRoomSize = roomSize;
+  
+    // Find a different room with the same room size
+    const newRoomID = Object.keys(users).find(
+      key => key !== currentRoomID && users[key].roomSize === currentRoomSize && users[key].roomSize > users[key].users.length
+    );
+
+    console.log(newRoomID)
+  
+    if (newRoomID) {
+      // Leave the current room
+      currentRoom.users = currentRoom.users.filter(user => user.socketID !== socket.id);
+  
+      if (currentRoom.users.length === 0) {
+        delete users[currentRoomID];
+      } 
+      else {
+        currentRoom.users.forEach(user => {
+          io.to(user.socketID).emit("userLeft");
+        });
+      }
+  
+      // Join the new room
+      users[newRoomID].users.push({
+        socketID: socket.id,
+        userID: userID,
+        username: username
+      });
+  
+      socketToRoom[socket.id] = newRoomID;
+  
+      const usersInNewRoom = users[newRoomID].users
+        .filter(user => user.socketID !== socket.id)
+        .map(user => ({
+          userID: user.userID,
+          username: user.username,
+          socketID: user.socketID
+        }));
+  
+      console.log("another room")
+      socket.emit("new all users", usersInNewRoom, newRoomID);
+    } else {
+      // Create a new room with the same room size
+      const newRoomID = generateRoomID();
+      users[newRoomID] = {
+        roomSize: currentRoomSize,
+        users: [
+          {
+            socketID: socket.id,
+            userID: userID,
+            username: username
+          }
+        ]
+      };
+      socketToRoom[socket.id] = newRoomID;
+
+      console.log(users)
+  
+      console.log("new room")
+      socket.emit("new all users", [], newRoomID); // Empty user list indicates waiting for others to join
+    }
   });
 
 
@@ -88,5 +162,3 @@ function generateRoomID() {
 }
 
 server.listen(3001, () => console.log('server is running on port 3001'));
-
-
