@@ -28,9 +28,11 @@
 }
 
 .panel {
-  display: flexbox;
-  padding: 2%;
+  min-width: 300px;
+  width: 100%;
+  margin: 5%;
   justify-content: center; /* Center horizontally */
+  justify-self: center;
 }
 
 .screen{
@@ -51,13 +53,13 @@
   grid-template-columns: 70% 30%;
 }
 
-canvas{
-  background-color: aquamarine;
-  max-width: fit-content;
-  width: 100%; 
-}
-
 .chatRoom {
+  background-color: whitesmoke;
+  border-radius: 0.5rem;
+  border-style: dotted;
+  border-color:rgb(61, 159, 253);
+  min-width: 500px;
+  width: 100%;
   display: grid;
   justify-content: center;
 }
@@ -139,4 +141,14 @@ html {
   min-height: 30px;
   min-width: 100px;
   color: white;
+}
+
+ul {
+  list-style-type: none; 
+  margin: 10px; 
+  padding: 0; 
+}
+
+ul > li {
+  padding: 0.5rem 1rem; 
 }

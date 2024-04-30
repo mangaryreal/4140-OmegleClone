@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 
-const Buttons = ({ handleRoomSize, handleJoinChat }) => {
+const Buttons = ({ handleRoomSize, handleJoinChat, handleSwitchChat, handleTextMode }) => {
   const navigate = useNavigate()
   const [chatting, setChatting] = useState(false)
   const [textMode, setTextMode] = useState(false)
   const [selectedRoomSize, setSelectedRoomSize] = useState(2);
+  
 
   const changeChatting = () => {
     setChatting(!chatting)
@@ -14,6 +15,7 @@ const Buttons = ({ handleRoomSize, handleJoinChat }) => {
 
   const changeTextMode = () => {
     setTextMode(!textMode)
+    handleTextMode()
   }
 
   const handleRoomSizeChange = (event) => {
@@ -36,11 +38,11 @@ const Buttons = ({ handleRoomSize, handleJoinChat }) => {
       <div className='buttons'>
         {!chatting ? <button className='newChat' onClick={changeChatting}>Join chat</button> : (
           <>
-            <button className='newChat' >Switch Chat</button>
+            <button className='newChat' onClick={handleSwitchChat}>Switch Chat</button>
             <button className='leaveChat' onClick={changeChatting}>Leave Chat</button>
           </>
         )}
-        {!chatting && <button className='textModeButton' onClick={changeTextMode}>{!textMode ? "Text" : "Video"}</button>}
+        {!chatting && <button className='textModeButton' onClick={changeTextMode}>{textMode ? "Text" : "Video"}</button>}
           <label>Room Size: </label>
           <select disabled={chatting} name='roomSize' value={selectedRoomSize} onChange={handleRoomSizeChange}>
               <option value={2}>2</option>

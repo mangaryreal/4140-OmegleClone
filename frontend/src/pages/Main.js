@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import VideoStreaming from '../component/videoStreaming';
 import Buttons from '../component/buttons';
 import { useNavigate } from 'react-router-dom';
+import TextChat from '../component/TextChat';
 
 const Main = () => {
   const [joinChat, setJoinChat] = useState(false)
@@ -9,10 +10,11 @@ const Main = () => {
   const navigate = useNavigate()
   const [userID, setUserID] = useState('')
   const [username, setUsername] = useState('')
+  const [switchChat, setSwitchChat] = useState(false);
+  const [textMode, setTextMode] = useState(false)
 
   const handleJoinChat = () => {
     setJoinChat(!joinChat)
-    // return !joinChat
   }
 
   function getCookie(name) {
@@ -49,28 +51,46 @@ const Main = () => {
     setRoomSize(size)
   }
 
-  return (
-    <div className='screen'>
-      <div className="title">
-        <h1>Omegle Clone</h1>
-        <p>Welcome, {username}</p>
-      </div>
-      <div className='main'>
-        <VideoStreaming 
-          joinChat={joinChat} 
-          roomSize={roomSize} 
-          username={username} 
-          userID={userID}>
+  const handleSwitchChat = () => {
+    setSwitchChat(!switchChat)
+  }
 
-          </VideoStreaming>
-        <div className='panel'>
-            <Buttons handleJoinChat={handleJoinChat} handleRoomSize={handleRoomSize}></Buttons>
-          <div className='chatRoom'>
-            <canvas></canvas>
+  const handleTextMode = () => {
+    setTextMode(!textMode)
+  }
+
+  return (
+      <div className='screen'>
+        <div className="title">
+          <h1>Omegle Clone</h1>
+          <p>Welcome, {username}</p>
+        </div>
+        <div className='main' style={textMode ? {gridTemplateColumns: "auto"} : {}}>
+          {textMode ? null : (
+            <VideoStreaming 
+            joinChat={joinChat} 
+            roomSize={roomSize} 
+            username={username} 
+            userID={userID}
+            switchChat={switchChat}
+            handleSwitchChat={handleSwitchChat}>
+
+            </VideoStreaming>
+          )}
+          <div className='panel'>
+              <Buttons 
+                handleJoinChat={handleJoinChat} 
+                handleRoomSize={handleRoomSize} 
+                handleSwitchChat={handleSwitchChat} 
+                handleTextMode={handleTextMode}
+              ></Buttons>
+            <div className='chatRoom'>
+              {/* <canvas></canvas> */}
+              <TextChat></TextChat>
+            </div>
           </div>
         </div>
       </div>
-    </div>
   )
 }
 

@@ -55,6 +55,7 @@ const Login = () => {
                 </div>
                 <button type='submit' className='logInButton' style={{justifySelf: "center"}}>Log in</button>
             </form>
+            <button className='logInButton' style={{justifySelf: "center", margin: "0.5rem"}} onClick={() => {navigate("/register")}}>Register</button>
         </div>
     )
 }

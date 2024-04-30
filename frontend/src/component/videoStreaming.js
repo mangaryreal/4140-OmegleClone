@@ -25,23 +25,30 @@ const VideoStreaming = (props) => {
     const joinChat = props.joinChat
     const username = props.username
     const userID = props.userID
+    const handleSwitchChat = props.handleSwitchChat
+    const switchChat = props.switchChat
+    const [roomID, setRoomID] = useState('')
 
     useEffect(() => {
         socketRef.current = io.connect("http://localhost:3001/");
       
         const handleBeforeUnload = () => {
-            socketRef.current.disconnect();
-        
-            if (userVideo.current && userVideo.current.srcObject) {
-                const tracks = userVideo.current.srcObject.getTracks();
-                if (tracks.length > 0) {
-                  tracks.forEach(track => track.stop()); // Stop user's media stream
-                }
+          socketRef.current.disconnect();
+      
+          if (userVideo.current && userVideo.current.srcObject) {
+            const tracks = userVideo.current.srcObject.getTracks();
+            if (tracks.length > 0) {
+              tracks.forEach(track => track.stop()); // Stop user's media stream
             }
-        
-            peersRef.current.forEach(peer => peer.peer.destroy());
+          }
+      
+          peersRef.current.forEach(peer => {
+            if (peer.peer.destroyed === false) {
+              peer.peer.destroy();
+            }
+          });
         };
-
+      
         window.addEventListener('beforeunload', handleBeforeUnload);
       
         let stream = null;
@@ -49,11 +56,44 @@ const VideoStreaming = (props) => {
           navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(str => {
             stream = str;
             userVideo.current.srcObject = stream;
-            socketRef.current.emit("join room", roomSize, userID, username);
-            socketRef.current.on("all users", users => {
+
+            if (!switchChat) socketRef.current.emit("join room", roomSize, userID, username);
+
+            if (switchChat === true) {
+              peersRef.current.forEach(peer => {
+                if (peer.peer.destroyed === false) {
+                  peer.peer.destroy();
+                }
+              });
+              peersRef.current = [];
+            
+              socketRef.current.emit("switch room", roomID, roomSize, userID, username);
+
+              // handleSwitchChat();
+            }
+
+            socketRef.current.on("new all users", (users, roomID) => {
+              setRoomID(roomID)
+              console.log(roomID)
+              console.log("new all users")
+              const peers = [];
+              users.forEach(user => {
+                const peer = createPeer(user.socketID, socketRef.current.id, stream);
+                peersRef.current.push({
+                  peerID: user.socketID,
+                  peer,
+                })
+                peers.push(peer);
+              })
+              setPeers(peers);
+            });
+
+            socketRef.current.on("all users", (users, roomid) => {
+              setRoomID(roomid)
               console.log("all users")
               const peers = [];
               users.forEach(user => {
+                console.log(user)
                 const peer = createPeer(user.socketID, socketRef.current.id, stream);
                 peersRef.current.push({
                   peerID: user.socketID,
@@ -71,7 +111,6 @@ const VideoStreaming = (props) => {
                 peerID: payload.callerID,
                 peer,
               })
-      
               setPeers(users => [...users, peer]);
             });
       
@@ -98,7 +137,7 @@ const VideoStreaming = (props) => {
           handleBeforeUnload()
           window.removeEventListener('beforeunload', handleBeforeUnload);
         };
-      }, [joinChat, roomSize, userID, username]);
+      }, [joinChat, roomSize, userID, username, switchChat, handleSwitchChat]);
 
     function createPeer(userToSignal, callerID, stream) {
         const peer = new Peer({

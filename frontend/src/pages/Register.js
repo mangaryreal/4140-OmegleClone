@@ -14,13 +14,27 @@ const Register = () => {
     setIsValid(isValidInput);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     alert('Username is valid: ' + username);
-
-    // set up an API POST request and get the User ID from the reponse
+  
+    const newUserID = await fetch("http://localhost:3001/register", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json"
+      },
+      body: JSON.stringify({username})
+    });
+  
+    if (newUserID.ok){
+      const resourse = await newUserID.json();
+      const uid = resourse.userID;
+      alert("UserID: " + uid);
+    }
+  
+    // set up an API POST request and get the User ID from the response
     // Then, you could either hide the current page and set up a page to show the UserID
-    // or show a alert message 
+    // or show an alert message 
   };
 
   return (
