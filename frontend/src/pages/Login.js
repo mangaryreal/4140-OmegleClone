@@ -61,7 +61,9 @@ function Login() {
     
         if (auth.ok) {
             const res = await auth.json();
-            alert(res.message);
+            if(res.message){
+                alert(res.message);
+            }
             console.log("Login Success Response:", res);
             document.cookie = `Omeglejwtsign=${res.token}; path:/`;
             alert("Going to main page....")

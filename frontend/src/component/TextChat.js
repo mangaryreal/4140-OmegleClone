@@ -134,8 +134,6 @@ const TextChat = memo((props) => {
 
     const handleReportMenu = useCallback((username) => {
       setSelectedUser(username);
-      toggleButtonDisabled(username);
-      alert("here we shut down report button for " + username)
       setShowReportPopup(true);
     }, []);
 
@@ -169,6 +167,7 @@ const TextChat = memo((props) => {
         return updatedButtons;
       });
     };
+
 
     const handleReport = async (event) => {
       event.preventDefault();

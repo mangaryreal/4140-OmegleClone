@@ -49,7 +49,8 @@ router.post("/report", async (request, response) => {
                 const banValues = [true, sevenDaysLater , reported_id];
                 await client.query(bannedQuery, banValues);
                 //kick out of room here
-            }
+                //how to connect to socket and disconnect them idk
+             }
             response.status(200).send({
                 message: "You (" + reporter_name + ") have successfully reported " + reported_name + " for " + report_reason,
                 reported_name: reported_name
