@@ -7,7 +7,6 @@ const register = require("./register");
 app.use(register);
 
 const server = http.createServer(app);
-// const socket = require("socket.io");
 const io = require("socket.io")(server, {
   cors: {
     origin: "http://localhost:3000",
@@ -15,17 +14,40 @@ const io = require("socket.io")(server, {
   },
 });
 
-
 var users = {};
 
 var socketToRoom = {};
 
 io.on('connection', socket => {
-  socket.on("join room", (roomSize, userID, username) => {
+  socket.on("send message", (username, message, userID) => {
+    let roomID = null;
+    for (const key in users) {
+      const room = users[key];
+      const userInRoom = room.users.find(user => user.userID === userID);
+      if (userInRoom) {
+        roomID = key;
+        break;
+      }
+    }
+  
+    if (roomID) {
+      const usersInRoom = users[roomID].users;
+      usersInRoom.forEach(user => {
+        io.to(user.socketID).emit("new message", username, message, userID);
+      });
+    }
+  });
+
+  socket.on("join room", (roomSize, userID, username, roomType) => {
+    // If you want to add topic for room pairing, 
+    // then you could add a new variable, and also for the .find part
     const intRoomSize = parseInt(roomSize)
     // Find a room with the same room size
     let roomID = Object.keys(users).find(
-      key => users[key].roomSize === intRoomSize && key !== socketToRoom[socket.id] && users[key].roomSize > users[key].users.length
+      key => users[key].roomSize === intRoomSize 
+        && key !== socketToRoom[socket.id] 
+        && users[key].roomSize > users[key].users.length 
+        && roomType === users[key].roomType
     );
   
     if (roomID) {
@@ -34,7 +56,7 @@ io.on('connection', socket => {
     } else {
       // Create a new room with the specified size
       const newRoomID = generateRoomID();
-      users[newRoomID] = { roomSize: intRoomSize, users: [{ socketID: socket.id, userID, username }] };
+      users[newRoomID] = { roomSize: intRoomSize, roomType: roomType, users: [{ socketID: socket.id, userID, username }] };
       roomID = newRoomID;
     }
   
@@ -47,93 +69,46 @@ io.on('connection', socket => {
         username: user.username,
         socketID: user.socketID
       }));
+
+    usersInThisRoom.forEach((user) => {
+      socket.to(user.socketID).emit("new user joined", {
+        userID,
+        username,
+        socketID: socket.id
+      })
+    })
   
     socket.emit("all users", usersInThisRoom, roomID);
-    // console.log(users)
-    console.log("called")
-  });
-
-  socket.on("switch room", (roomID, roomSize, userID, username) => {
-    const currentRoomID = roomID;
-    const currentRoom = users[currentRoomID];
-    console.log(currentRoom)
-    const currentRoomSize = roomSize;
-  
-    // Find a different room with the same room size
-    const newRoomID = Object.keys(users).find(
-      key => key !== currentRoomID && users[key].roomSize === currentRoomSize && users[key].roomSize > users[key].users.length
-    );
-
-    console.log(newRoomID)
-  
-    if (newRoomID) {
-      // Leave the current room
-      currentRoom.users = currentRoom.users.filter(user => user.socketID !== socket.id);
-  
-      if (currentRoom.users.length === 0) {
-        delete users[currentRoomID];
-      } 
-      else {
-        currentRoom.users.forEach(user => {
-          io.to(user.socketID).emit("userLeft");
-        });
-      }
-  
-      // Join the new room
-      users[newRoomID].users.push({
-        socketID: socket.id,
-        userID: userID,
-        username: username
-      });
-  
-      socketToRoom[socket.id] = newRoomID;
-  
-      const usersInNewRoom = users[newRoomID].users
-        .filter(user => user.socketID !== socket.id)
-        .map(user => ({
-          userID: user.userID,
-          username: user.username,
-          socketID: user.socketID
-        }));
-  
-      console.log("another room")
-      socket.emit("new all users", usersInNewRoom, newRoomID);
-    } else {
-      // Create a new room with the same room size
-      const newRoomID = generateRoomID();
-      users[newRoomID] = {
-        roomSize: currentRoomSize,
-        users: [
-          {
-            socketID: socket.id,
-            userID: userID,
-            username: username
-          }
-        ]
-      };
-      socketToRoom[socket.id] = newRoomID;
-
-      console.log(users)
-  
-      console.log("new room")
-      socket.emit("new all users", [], newRoomID); // Empty user list indicates waiting for others to join
-    }
   });
 
 
   socket.on("sending signal", payload => {
-    console.log("Hello, someone sending signal");
     io.to(payload.userToSignal).emit('user joined', { signal: payload.signal, callerID: payload.callerID });
   });
 
   socket.on("returning signal", payload => {
-    console.log("Hello, server returns signal");
     io.to(payload.callerID).emit('receiving returned signal', { signal: payload.signal, id: socket.id });
   });
 
+  socket.on("disconnectTextChat", (roomID, userID) => {
+    if (roomID === 0) return;
+    const room = users[roomID];
+    if (room) {
+      const leftUser = room.users.filter(user => user.userID === userID);
+      room.users = room.users.filter(user => user.userID !== userID);
+      if (room.users.length === 0) {
+        delete users[roomID];
+      } else {
+        room.users.forEach(user => {
+          io.to(user.socketID).emit("userLeft", leftUser[0]?.username);
+        });
+      }
+    }
+  })
+
   socket.on('disconnect', () => {
-    console.log("Hello, someone disconnecting");
-    const roomID = socketToRoom[socket.id];
+    // console.log("Hello, someone disconnecting");
+    const roomID = socket.roomID;
     const room = users[roomID];
     if (room) {
       room.users = room.users.filter(user => user.socketID !== socket.id);
@@ -141,7 +116,7 @@ io.on('connection', socket => {
         delete users[roomID];
       } else {
         room.users.forEach(user => {
-          io.to(user.socketID).emit("userLeft");
+          io.to(user.socketID).emit("userLeftDisconnect");
         });
       }
     }
@@ -162,3 +137,7 @@ function generateRoomID() {
 }
 
 server.listen(3001, () => console.log('server is running on port 3001'));
+
+app.get('/', (req, res) => {
+  res.send(users)
+})
