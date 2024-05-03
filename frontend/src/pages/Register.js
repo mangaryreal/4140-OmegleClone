@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from "react-router-dom";
 
 const Register = () => {
+  const navigate = useNavigate();
+
   const [username, setUsername] = useState('');
   const [isValid, setIsValid] = useState(false);
 
@@ -17,19 +20,32 @@ const Register = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     alert('Username is valid: ' + username);
-  
+
+    const requestBody = {
+      username: username,
+    };
+
     const newUserID = await fetch("http://localhost:3001/register", {
       method: "POST",
       headers: {
         "Content-type": "application/json"
       },
-      body: JSON.stringify({username})
+      body: JSON.stringify(requestBody),
     });
   
     if (newUserID.ok){
       const resourse = await newUserID.json();
-      const uid = resourse.userID;
-      alert("UserID: " + uid);
+      //const uid = resourse.userID;
+      //alert("UserID: " + uid);
+      alert(resourse.message);
+      navigate("/login");
+    } else {
+      const data = await newUserID.json();
+      if (data.message === "Duplicated username") {
+        alert("Duplicated username. Please try again.");
+      } else {
+        alert("Failed to register. Please try again.");
+      }
     }
   
     // set up an API POST request and get the User ID from the response

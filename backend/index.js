@@ -1,9 +1,17 @@
 const express = require("express");
 const http = require("http");
+
 const app = express();
 const cors = require("cors");
 app.use(cors())
-const register = require("./register");
+
+const bodyParser = require('body-parser');
+app.use(bodyParser.json());
+
+app.use(express.json({ limit: '10gb' }));
+app.use(express.urlencoded({ limit: '10gb', extended: true }));
+
+const register = require("./api/register");
 app.use(register);
 
 const server = http.createServer(app);
