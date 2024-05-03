@@ -67,9 +67,13 @@ function Login() {
             alert("Going to main page....")
             navigate("/");
             return;
-        } else {
-            alert("User not found");
-            return;
+        }   else {
+            const data = await auth.json();
+            if (data.message === "YOU ARE BANNED") {
+                alert(data.message);
+              } else {
+                alert("Username is not found");
+              }
         }
 
 

@@ -44,19 +44,21 @@ router.post("/login", async (req, res) => {
         userID: userID,
       } = accountResult.rows[0];
 
-      //const BannedQuery = `SELECT SUSPENDED FROM "User" WHERE USERNAME = $1`;
-      //const SuspensionState = await client.query(BannedQuery,[username])
+      const BannedQuery = `SELECT SUSPENDED FROM "User" WHERE USERNAME = $1`;
+      const SuspensionState = await client.query(BannedQuery,[username])
 
-        if (/*SuspensionState === false && */username === fetchedUsername) {
-          res.status(200);
-          const token = jwt.sign(
-            { username: fetchedUsername, userID: userID},
-            secretKey
-          );
-          res.json({ token: token, userID: userID});
-        } else {
-          res.status(400).send({ validation: false });
-        }
+      if (SuspensionState.rows[0].suspended === true && username === fetchedUsername){
+        res.status(400).send({ message: "YOU ARE BANNED" });
+      } else if (SuspensionState.rows[0].suspended === false && username === fetchedUsername) {
+        res.status(200);
+        const token = jwt.sign(
+          { username: fetchedUsername, userID: userID},
+          secretKey
+        );
+        res.json({ token: token, userID: userID});
+      } else {
+        res.status(400).send({ validation: false });
+      }
   
         client.release();
 
