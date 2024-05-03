@@ -17,7 +17,7 @@ const TextChat = memo((props) => {
   const [message, setMessage] = useState([]);
   const [arrivalMessage, setArrivalMessage] = useState(null);
 
-  const [showReportButton, setShowReportButton] = useState(true);
+  const [disabledButtons, setDisabledButtons] = useState([]);
   const [showReportPopup, setShowReportPopup] = useState(false);
   const [selectedUser, setSelectedUser] = useState('');
   const [selectedReason, setSelectedReason] = useState("");
@@ -134,6 +134,8 @@ const TextChat = memo((props) => {
 
     const handleReportMenu = useCallback((username) => {
       setSelectedUser(username);
+      toggleButtonDisabled(username);
+      alert("here we shut down report button for " + username)
       setShowReportPopup(true);
     }, []);
 
@@ -155,10 +157,48 @@ const TextChat = memo((props) => {
       setOtherReason(value);
     };
     
-    const handleReport = () => {
-      alert(`Reason: ${selectedReason}`);
-      setShowReportPopup(false);
-      setShowReportButton(false);
+    const toggleButtonDisabled = (username) => {
+      setDisabledButtons(prevButtons => {
+        const updatedButtons = [...prevButtons];
+        const index = updatedButtons.indexOf(username);
+        if (index === -1) {
+          updatedButtons.push(username);
+        } else {
+          updatedButtons.splice(index, 1);
+        }
+        return updatedButtons;
+      });
+    };
+
+    const handleReport = async (event) => {
+      event.preventDefault();
+    
+      const requestBody = {
+        report_reason: selectedReason,
+        reporter_name: username,
+        reported_name: selectedUser
+      };
+    
+      const ReportSubmission = await fetch("http://localhost:3001/report", {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json"
+        },
+        body: JSON.stringify(requestBody),
+      });
+    
+      if (ReportSubmission.ok) {
+        const resourse = await ReportSubmission.json();
+        alert(resourse.message);   
+        alert("I am now trying to disable the report button for " + resourse.reported_name + " since you reported him already");
+        toggleButtonDisabled(resourse.reported_name);
+        alert("Yea we should be able to disable it.... " + disabledButtons.includes(resourse.reported_name));
+        setShowReportPopup(false);
+        alert("Still " + disabledButtons.includes(resourse.reported_name) +  "?");
+      } else {
+        const resource = await ReportSubmission.json();
+        alert(resource.message);
+      }
     };
     
     
@@ -168,7 +208,7 @@ const TextChat = memo((props) => {
         {joinChat && allUsers.map((user) => (
       <div style={{ display: "grid", height: "20px", gridTemplateColumns: "80% 20%", margin: "5px 0" }}>
       <p style={{ height: "20px" }}>{user.username}</p>
-      <button className='report' onClick={() => handleReportMenu(user.username)} style={{ height: "20px", alignSelf: "center" }} disabled={!showReportButton}>Report</button>
+      <button className='report' onClick={() => handleReportMenu(user.username)} style={{ height: "20px", alignSelf: "center" }} disabled={disabledButtons.includes(user.username)}>Report</button>
     </div>
     ))}
       </div>

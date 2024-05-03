@@ -61,6 +61,7 @@ function Login() {
     
         if (auth.ok) {
             const res = await auth.json();
+            alert(res.message);
             console.log("Login Success Response:", res);
             document.cookie = `Omeglejwtsign=${res.token}; path:/`;
             alert("Going to main page....")
@@ -68,11 +69,7 @@ function Login() {
             return;
         }   else {
             const data = await auth.json();
-            if (data.message === "YOU ARE BANNED") {
                 alert(data.message);
-            } else if(data.message === "Incorrect user ID" ) {
-                alert(data.message);
-            }
         }
 
 

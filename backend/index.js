@@ -20,6 +20,9 @@ app.use(login);
 const protected = require('./api/protected');
 app.use(protected);
 
+const report = require('./api/report');
+app.use(report);
+
 const server = http.createServer(app);
 const io = require("socket.io")(server, {
   cors: {

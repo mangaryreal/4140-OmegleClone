@@ -48,9 +48,6 @@ const Register = () => {
       }
     }
   
-    // set up an API POST request and get the User ID from the response
-    // Then, you could either hide the current page and set up a page to show the UserID
-    // or show an alert message 
   };
 
   return (
