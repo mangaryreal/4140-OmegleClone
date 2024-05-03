@@ -3,7 +3,7 @@
   grid-template-columns: auto auto;
   padding: 2%;
   gap: 1rem;
-  justify-content: center; /* Center horizontally */
+  justify-content: center; 
 }
 
 .buttons {
@@ -31,8 +31,7 @@
   min-width: 300px;
   width: 100%;
   margin: 5%;
-  justify-content: center; /* Center horizontally */
-  justify-self: center;
+  align-self: center; /* Added align-self property */
 }
 
 .screen{
@@ -55,13 +54,15 @@
 
 .chatRoom {
   background-color: whitesmoke;
+  padding: 0 20px;
   border-radius: 0.5rem;
   border-style: dotted;
-  border-color:rgb(61, 159, 253);
-  min-width: 500px;
+  border-color: rgb(61, 159, 253);
+  min-width: 250px;
   width: 100%;
-  display: grid;
-  justify-content: center;
+  display: flex; /* Changed display value */
+  justify-content: flex-start; /* Updated justify-content value */
+  align-items: center; /* Center vertically */
 }
 
 @media only screen and (max-width: 1030px) {
@@ -143,12 +144,26 @@ html {
   color: white;
 }
 
-ul {
-  list-style-type: none; 
-  margin: 10px; 
-  padding: 0; 
+
+.sendButton {
+  background-color: #4CAF50; /* Custom background color */
+  height: 40px; /* Custom height */
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem; /* Custom padding */
+  margin: 7px;
+  font-size: inherit;
+  cursor: pointer;
+  /* Add any other custom styles you want */
 }
 
-ul > li {
-  padding: 0.5rem 1rem; 
+.chatInput {
+  width: 70%; /* Custom width */
+  height: 40px; /* Custom height */
+  padding: 0.2rem; /* Custom padding */
+  margin: 5px;
+  font-size: 1rem; /* Custom font size */
+  border-radius: 0.5rem; /* Custom border radius */
+  border: 1px solid #ccc; /* Custom border */
 }

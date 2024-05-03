@@ -10,8 +10,9 @@ const Main = () => {
   const navigate = useNavigate()
   const [userID, setUserID] = useState('')
   const [username, setUsername] = useState('')
-  const [switchChat, setSwitchChat] = useState(false);
-  const [textMode, setTextMode] = useState(false)
+  const [textMode, setTextMode] = useState(true)
+  /// add a useState for the allUsers from the video streaming
+
 
   const handleJoinChat = () => {
     setJoinChat(!joinChat)
@@ -51,13 +52,10 @@ const Main = () => {
     setRoomSize(size)
   }
 
-  const handleSwitchChat = () => {
-    setSwitchChat(!switchChat)
-  }
-
   const handleTextMode = () => {
     setTextMode(!textMode)
   }
+
 
   return (
       <div className='screen'>
@@ -71,9 +69,7 @@ const Main = () => {
             joinChat={joinChat} 
             roomSize={roomSize} 
             username={username} 
-            userID={userID}
-            switchChat={switchChat}
-            handleSwitchChat={handleSwitchChat}>
+            userID={userID}>
 
             </VideoStreaming>
           )}
@@ -81,13 +77,24 @@ const Main = () => {
               <Buttons 
                 handleJoinChat={handleJoinChat} 
                 handleRoomSize={handleRoomSize} 
-                handleSwitchChat={handleSwitchChat} 
                 handleTextMode={handleTextMode}
               ></Buttons>
+              {/**
+               * For the topic choice, you could add a handler for the buttons
+               * 
+               * You could add a div here to show the users (namely "User List") in the video chat like how the text chat created
+               * Also, you need to add handler to the video streaming to pass the user info through the Main.js to the "User list"
+               */}
+            {textMode && 
             <div className='chatRoom'>
-              {/* <canvas></canvas> */}
-              <TextChat></TextChat>
-            </div>
+                <TextChat
+                  joinChat={joinChat} 
+                  disabled={!joinChat}
+                  username={username} 
+                  userID={userID}
+                  roomSize={roomSize} 
+                ></TextChat>
+            </div>}
           </div>
         </div>
       </div>

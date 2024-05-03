@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, memo } from 'react';
 import io from 'socket.io-client';
 import Peer from 'simple-peer'
 
-const Video = (props) => {
+const Video = memo((props) => {
   const ref = useRef();
 
   useEffect(() => {
@@ -14,7 +14,7 @@ const Video = (props) => {
   return (
       <video className="video-grid" playsInline autoPlay ref={ref}></video>
   );
-}
+})
 
 const VideoStreaming = (props) => {
     const [peers, setPeers] = useState([]);
@@ -24,15 +24,16 @@ const VideoStreaming = (props) => {
     const roomSize = props.roomSize
     const joinChat = props.joinChat
     const username = props.username
-    const userID = props.userID
-    const handleSwitchChat = props.handleSwitchChat
-    const switchChat = props.switchChat
-    const [roomID, setRoomID] = useState('')
+    const userID = parseInt(props.userID)
+    const [roomID, setRoomID] = useState(0)
+    const [allUsers, setAllUsers] = useState([])
 
     useEffect(() => {
         socketRef.current = io.connect("http://localhost:3001/");
       
         const handleBeforeUnload = () => {
+          setAllUsers([])
+          socketRef.current.emit("disconnectTextChat", roomID, userID);
           socketRef.current.disconnect();
       
           if (userVideo.current && userVideo.current.srcObject) {
@@ -57,43 +58,16 @@ const VideoStreaming = (props) => {
             stream = str;
             userVideo.current.srcObject = stream;
 
-            if (!switchChat) socketRef.current.emit("join room", roomSize, userID, username);
-
-            if (switchChat === true) {
-              peersRef.current.forEach(peer => {
-                if (peer.peer.destroyed === false) {
-                  peer.peer.destroy();
-                }
-              });
-              peersRef.current = [];
-            
-              socketRef.current.emit("switch room", roomID, roomSize, userID, username);
-
-              // handleSwitchChat();
-            }
-
-            socketRef.current.on("new all users", (users, roomID) => {
-              setRoomID(roomID)
-              console.log(roomID)
-              console.log("new all users")
-              const peers = [];
-              users.forEach(user => {
-                const peer = createPeer(user.socketID, socketRef.current.id, stream);
-                peersRef.current.push({
-                  peerID: user.socketID,
-                  peer,
-                })
-                peers.push(peer);
-              })
-              setPeers(peers);
-            });
+            socketRef.current.emit("join room", roomSize, userID, username, "video");
 
             socketRef.current.on("all users", (users, roomid) => {
               setRoomID(roomid)
               console.log("all users")
+              console.log(users)
+              console.log("all users end")
               const peers = [];
               users.forEach(user => {
-                console.log(user)
+                setAllUsers(allUsers => [...allUsers, user])
                 const peer = createPeer(user.socketID, socketRef.current.id, stream);
                 peersRef.current.push({
                   peerID: user.socketID,
@@ -103,9 +77,13 @@ const VideoStreaming = (props) => {
               })
               setPeers(peers);
             })
+
+            socketRef.current.on("new user joined", (a)=> {
+              console.log(a)
+              setAllUsers(allUsers => [...allUsers, a])
+            })
       
             socketRef.current.on("user joined", payload => {
-              console.log("all users")
               const peer = addPeer(payload.signal, payload.callerID, stream);
               peersRef.current.push({
                 peerID: payload.callerID,
@@ -115,14 +93,20 @@ const VideoStreaming = (props) => {
             });
       
             socketRef.current.on("receiving returned signal", payload => {
-              console.log("all users")
               const item = peersRef.current.find(p => p.peerID === payload.id);
               item.peer.signal(payload.signal);
             });
       
-            socketRef.current.on("userLeft", () => {
+            socketRef.current.on("userLeftDisconnect", () => {
               console.log("someone disconnecting")
               setPeers([])
+              setAllUsers([])
+            })
+
+            socketRef.current.on("userLeft", (username) => {
+              console.log(username + " disconnecting")
+              setPeers([])
+              setAllUsers([])
             })
           })
         } else {
@@ -130,6 +114,7 @@ const VideoStreaming = (props) => {
             stream = str;
             userVideo.current.srcObject = stream;
           })
+          socketRef.current.emit("disconnectTextChat", roomID, userID);
         }
       
         return () => {
@@ -137,7 +122,7 @@ const VideoStreaming = (props) => {
           handleBeforeUnload()
           window.removeEventListener('beforeunload', handleBeforeUnload);
         };
-      }, [joinChat, roomSize, userID, username, switchChat, handleSwitchChat]);
+      }, [joinChat, roomSize, userID, username, setRoomID, setAllUsers]);
 
     function createPeer(userToSignal, callerID, stream) {
         const peer = new Peer({
@@ -170,17 +155,24 @@ const VideoStreaming = (props) => {
     }
 
   return (
-    <div className="videos" style={peers.length > 0 ? {display:"grid"} : {display: "flex"}}>
-      {<video className="video-grid" playsInline muted ref={userVideo} autoPlay />}
-      {joinChat && peers.map((peer, index) => (
+    <div>
+      <div className="videos" style={peers.length > 0 ? {display:"grid"} : {display: "grid"}}>
         <div>
-          <Video key={index} peer={peer}></Video>
-          <div style={{justifySelf: 
-          "center"}}>
-            <button>Report</button>
-          </div>
+          <video className="video-grid" playsInline muted ref={userVideo} autoPlay />
+          <p>Self</p>
         </div>
-      ))}
+        {joinChat && peers.map((peer, index) => (
+          <div>
+            <Video key={index} peer={peer}></Video>
+            <p key={index}>{allUsers[index]?.username}</p>
+          </div>
+        ))}
+      </div>
+      {/* {joinChat && allUsers.map((user, index) => (
+        <div>
+          <p key={index}>{user.username}</p>
+        </div>
+      ))} */}
     </div>
   );
 };
