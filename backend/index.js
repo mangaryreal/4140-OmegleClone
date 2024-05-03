@@ -14,6 +14,12 @@ app.use(express.urlencoded({ limit: '10gb', extended: true }));
 const register = require("./api/register");
 app.use(register);
 
+const login = require("./api/login");
+app.use(login);
+
+const protected = require('./api/protected');
+app.use(protected);
+
 const server = http.createServer(app);
 // const socket = require("socket.io");
 const io = require("socket.io")(server, {

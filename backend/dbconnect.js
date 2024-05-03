@@ -10,12 +10,13 @@ require("dotenv").config()
  * @export {pg.Pool} pool
  */
 
+
 // PostgreSQL pool connection
 const pool = new pg.Pool({
-  database: "omegle_clone_database",
-  user: "omegle_clone_database_user",
-  password: "SQsqpYoKZt2bleZbR9npPhc6IXUpfFP9",
-  host: "dpg-copqgoq1hbls73dkq440-a.singapore-postgres.render.com",
+  database: process.env.DB_NAME,
+  user: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  host: process.env.DB_HOST,
   ssl: true
 })
 

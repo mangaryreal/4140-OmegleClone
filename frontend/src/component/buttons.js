@@ -24,9 +24,12 @@ const Buttons = ({ handleRoomSize, handleJoinChat, handleSwitchChat, handleTextM
   };
 
   const handleLogout = () => {
-    deleteCookie("OmegleClone")
+    /*deleteCookie("OmegleClone")
     deleteCookie("OmegleCloneID")
-    navigate("/login")
+    navigate("/login")*/
+    alert("Logged out");
+    document.cookie = `Omeglejwtsign=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    window.location.href = '/login';
   }
 
   function deleteCookie(name) {

@@ -17,7 +17,7 @@ const Main = () => {
     setJoinChat(!joinChat)
   }
 
-  function getCookie(name) {
+  /*function getCookie(name) {
     const cookieString = decodeURIComponent(document.cookie);
     const cookies = cookieString.split(';');
   
@@ -32,20 +32,47 @@ const Main = () => {
     }
   
     return null;
-  }
+  }*/
 
-  function chekcAuth () {
-    setUsername(getCookie("OmegleClone"))
+  const chekcAuth = () => {
+    /*setUsername(getCookie("OmegleClone"))
     setUserID(getCookie("OmegleCloneID"))
 
     if (username === null || userID === null){
       navigate("/login")
-    }
+    }*/
+    const cookieList = document.cookie.split(';');
+    let jwtToken = '';
+
+    cookieList.forEach(async (cookie) => {
+      if (cookie.startsWith('Omeglejwtsign=')) {
+          try {
+            jwtToken = cookie.substr(14);
+            const res = await fetch('http://localhost:3001/protected', {
+                method: 'POST',
+                headers: {
+                'Content-type': 'application/json',
+                },
+                body: JSON.stringify({ jwtToken: jwtToken }),
+            });
+
+            if (res.ok) {
+                const result = await res.json();
+                setUserID(result.decode.userId);
+                setUsername(result.decode.username);
+            } 
+          } catch (e) {
+          console.error('Error');
+          }
+      }
+
+    });
+
   }
   
   useEffect(() => {
-    chekcAuth()
-  })
+    chekcAuth();
+  },[])
 
   const handleRoomSize = (size) => {
     setRoomSize(size)

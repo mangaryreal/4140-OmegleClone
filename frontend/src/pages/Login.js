@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
-import { users } from '../demo-data/data' 
+import React, { useState, useEffect } from 'react'
+//import { users } from '../demo-data/data' 
 import { useNavigate } from 'react-router-dom';
 
-function createCookie(name, value, days) {
+/*function createCookie(name, value, days) {
     let expires = "";
     if (days) {
       const date = new Date();
@@ -10,14 +10,70 @@ function createCookie(name, value, days) {
       expires = "; expires=" + date.toUTCString();
     }
     document.cookie = name + "=" + value + expires + "; path=/";
-}
+}*/
 
-const Login = () => {
-    const [userID, setUserID] = useState("")
+function Login() {
+//const Login = () => {
+    const [username, setUsername] = useState("")
     const navigate = useNavigate()
 
-    const handleLogin = (e) => {
-        const userID = parseInt(e.target.userID.value);
+    useEffect(() => {
+        const cookieList = document.cookie.split(';');
+        let jwtToken = '';
+        cookieList.forEach(async (cookie) => {
+            //alert("checking cookie list") can check here
+            if (cookie.startsWith('Omeglejwtsign=')) {
+                //alert("There is a cookie!") no cookie... :((((
+            try {
+              jwtToken = cookie.substr(14);
+              const res = await fetch('http://localhost:3001/protected', {
+                  method: 'POST',
+                  headers: {
+                  'Content-type': 'application/json',
+                  },
+                  body: JSON.stringify({ jwtToken: jwtToken }),
+              });
+              
+              if (res.ok) {
+                  //const result = await res.json();
+                  navigate("/")
+              } 
+            } catch (e) {
+            console.error('Error');
+            }
+        }});
+    }, []); // Run this effect only once on component mount
+
+    const handleLogin = async (e) => {
+        e.preventDefault()
+
+        const requestBody = {
+            username: username,
+        };
+    
+        const auth = await fetch('http://localhost:3001/login', {
+            method: 'POST',
+            headers: {
+                "Content-type": "application/json"
+            },
+            body: JSON.stringify(requestBody)
+        });
+        console.log("Login Response:", auth);
+    
+        if (auth.ok) {
+            const res = await auth.json();
+            console.log("Login Success Response:", res);
+            document.cookie = `Omeglejwtsign=${res.token}; path:/`;
+            alert("Going to main page....")
+            navigate("/");
+            return;
+        } else {
+            alert("User not found");
+            return;
+        }
+
+
+        /*const userID = parseInt(e.target.userID.value);
       
         const foundUser = users.find((user) => user.userID === userID);
       
@@ -30,9 +86,8 @@ const Login = () => {
           navigate("/");
         } else {
           alert("User not found");
-        }
-    };
-
+        }*/
+    }
 
     return (
         <div className='screen'>
@@ -44,12 +99,15 @@ const Login = () => {
             </div>
             <form onSubmit={handleLogin} style={{display: "grid", justifyContent: "center"}}>
                 <div style={{justifySelf: "center"}}>
-                    <label>User ID</label>
+                    <label>Username</label>
                     <br></br>
                     <p></p>
                 </div>
                 <div style={{justifySelf: "center"}}>
-                    <input name='userID' placeholder='12-16 characters long' value={userID} onChange={(e) => {setUserID(e.target.value)}}></input>
+                    <input  name='username' 
+                            placeholder='12-16 characters long' 
+                            value={username} 
+                            onChange={(e) => {setUsername(e.target.value)}}></input>
                     <br></br>
                     <p></p>
                 </div>
