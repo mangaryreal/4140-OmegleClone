@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, memo } from 'react';
+import React, { useState, useEffect, useRef,useCallback ,memo } from 'react';
 import io from 'socket.io-client';
 import Peer from 'simple-peer'
 
@@ -27,6 +27,13 @@ const VideoStreaming = (props) => {
     const userID = parseInt(props.userID)
     const [roomID, setRoomID] = useState(0)
     const [allUsers, setAllUsers] = useState([])
+
+    const [showReportButton, setShowReportButton] = useState(true);
+    const [showReportPopup, setShowReportPopup] = useState(false);
+    const [selectedUser, setSelectedUser] = useState('');
+    const [selectedReason, setSelectedReason] = useState("");
+    const [otherReason, setOtherReason] = useState("");
+  
 
     useEffect(() => {
         socketRef.current = io.connect("http://localhost:3001/");
@@ -154,6 +161,35 @@ const VideoStreaming = (props) => {
         return peer;
     }
 
+    const handleReportMenu = useCallback((username) => {
+      setSelectedUser(username);
+      setShowReportPopup(true);
+    }, []);
+
+    const handleCheckboxChange = (event) => {
+      const { value, checked } = event.target;
+    
+      if (checked) {
+        setSelectedReason(value);
+        setOtherReason(event.target.nextSibling.textContent);
+      } else {
+        setSelectedReason('');
+        setOtherReason('');
+      }
+    };
+    
+    const handleOtherReasonChange = (event) => {
+      const { value } = event.target;
+      setSelectedReason(value);
+      setOtherReason(value);
+    };
+    
+    const handleReport = () => {
+      alert(`Reason: ${selectedReason}`);
+      setShowReportPopup(false);
+      setShowReportButton(false);
+    };
+
   return (
     <div>
     <div style={{ height: "120px" }}>
@@ -163,7 +199,7 @@ const VideoStreaming = (props) => {
       style={{ display: "flex", alignItems: "center", margin: "5px 0" }}
     >
       <p style={{ flex: "1", height: "20px" }}>{user.username}</p>
-      <button style={{ height: "20px" }}>Report</button>
+      <button className='report' onClick={() => handleReportMenu(user.username)} style={{ height: "20px", alignSelf: "center" }} disabled={!showReportButton}>Report</button>
     </div>
     ))}
     </div>
@@ -184,6 +220,41 @@ const VideoStreaming = (props) => {
           <p key={index}>{user.username}</p>
         </div>
       ))} */}
+       {showReportPopup && (
+  <div className="popup">
+    <p>You &#40;{username}&#41; are reporting {selectedUser} for</p>
+    <div>
+      <label>
+        <input type="checkbox" name="reportReason" value="sexualContent" onChange={handleCheckboxChange} checked={selectedReason === 'sexualContent'} disabled={selectedReason !== '' && selectedReason !== 'sexualContent'} />
+        Sexual content
+      </label>
+      <br />
+      <label>
+        <input type="checkbox" name="reportReason" value="violentContent" onChange={handleCheckboxChange} checked={selectedReason === 'violentContent'} disabled={selectedReason !== '' && selectedReason !== 'violentContent'} />
+        Violent or repulsive content
+      </label>
+      <br />
+      <label>
+        <input type="checkbox" name="reportReason" value="hatefulContent" onChange={handleCheckboxChange} checked={selectedReason === 'hatefulContent'} disabled={selectedReason !== '' && selectedReason !== 'hatefulContent'} />
+        Hateful or abusive content
+      </label>
+      <br />
+      <label>
+        <input type="checkbox" name="reportReason" value="harmfulContent" onChange={handleCheckboxChange} checked={selectedReason === 'harmfulContent'} disabled={selectedReason !== '' && selectedReason !== 'harmfulContent'} />
+        Harmful or dangerous acts
+      </label>
+      <br />
+      <label>
+        Other reason:
+        <input type="text" name="otherReason" value={otherReason} onChange={handleOtherReasonChange} />
+      </label>
+    </div>
+    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "10px" }}>
+      <button onClick={() => setShowReportPopup(false)}>Cancel</button>
+      <button  onClick={handleReport} disabled={selectedReason === '' && otherReason === ''}>Report</button>
+    </div>
+  </div>
+)}
     </div>
   );
 };

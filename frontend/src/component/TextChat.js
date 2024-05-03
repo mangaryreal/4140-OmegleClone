@@ -192,7 +192,7 @@ const TextChat = memo((props) => {
 
         {showReportPopup && (
   <div className="popup">
-    <p>Reporting {username} for {selectedUser}</p>
+    <p>You &#40;{username}&#41; are reporting {selectedUser} for</p>
     <div>
       <label>
         <input type="checkbox" name="reportReason" value="sexualContent" onChange={handleCheckboxChange} checked={selectedReason === 'sexualContent'} disabled={selectedReason !== '' && selectedReason !== 'sexualContent'} />
