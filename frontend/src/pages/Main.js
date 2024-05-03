@@ -46,8 +46,12 @@ const Main = () => {
     let jwtToken = '';
 
     cookieList.forEach(async (cookie) => {
+      //back to login page if no cookie
+      if(cookieList===''){
+        navigate("/login")
+      }
       if (cookie.startsWith('Omeglejwtsign=')) {
-          try {
+        try {
             jwtToken = cookie.substr(14);
             const res = await fetch('http://localhost:3001/protected', {
                 method: 'POST',
@@ -61,10 +65,10 @@ const Main = () => {
                 const result = await res.json();
                 setUserID(result.decode.userId);
                 setUsername(result.decode.username);
-            } 
+            }
           } catch (e) {
           console.error('Error');
-          }
+        }
       }
 
     });

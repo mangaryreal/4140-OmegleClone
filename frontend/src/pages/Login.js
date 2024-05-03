@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom';
 
 function Login() {
 //const Login = () => {
-    const [username, setUsername] = useState("")
+    const [userID, setUserID] = useState("")
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -23,7 +23,6 @@ function Login() {
         cookieList.forEach(async (cookie) => {
             //alert("checking cookie list") can check here
             if (cookie.startsWith('Omeglejwtsign=')) {
-                //alert("There is a cookie!") no cookie... :((((
             try {
               jwtToken = cookie.substr(14);
               const res = await fetch('http://localhost:3001/protected', {
@@ -48,8 +47,8 @@ function Login() {
         e.preventDefault()
 
         const requestBody = {
-            username: username,
-        };
+            userID: userID,
+          };
     
         const auth = await fetch('http://localhost:3001/login', {
             method: 'POST',
@@ -71,9 +70,9 @@ function Login() {
             const data = await auth.json();
             if (data.message === "YOU ARE BANNED") {
                 alert(data.message);
-              } else {
-                alert("Username is not found");
-              }
+            } else if(data.message === "Incorrect user ID" ) {
+                alert(data.message);
+            }
         }
 
 
@@ -103,15 +102,15 @@ function Login() {
             </div>
             <form onSubmit={handleLogin} style={{display: "grid", justifyContent: "center"}}>
                 <div style={{justifySelf: "center"}}>
-                    <label>Username</label>
+                    <label>USER ID</label>
                     <br></br>
                     <p></p>
                 </div>
                 <div style={{justifySelf: "center"}}>
-                    <input  name='username' 
+                    <input  name='userID' 
                             placeholder='12-16 characters long' 
-                            value={username} 
-                            onChange={(e) => {setUsername(e.target.value)}}></input>
+                            value={userID} 
+                            onChange={(e) => {setUserID(e.target.value)}}></input>
                     <br></br>
                     <p></p>
                 </div>

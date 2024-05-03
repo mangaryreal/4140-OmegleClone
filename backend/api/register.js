@@ -31,7 +31,7 @@ router.post("/register", async (request, response) => {
 
         console.log("User data inserted successfully");
 
-        response.status(200).send({ message: "Successful registration" });
+        response.status(200).send({ message: "Successful registration, Your User ID is " + userID + ". Please remember your User ID, it is the only way to log in." });
     
         client.release();
     } catch (error) {
