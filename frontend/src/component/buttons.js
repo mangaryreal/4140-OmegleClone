@@ -1,13 +1,12 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 
-const Buttons = ({ handleRoomSize, handleJoinChat, handleSwitchChat, handleTextMode }) => {
+const Buttons = ({ handleRoomSize, handleJoinChat, handleTextMode }) => {
   const navigate = useNavigate()
   const [chatting, setChatting] = useState(false)
-  const [textMode, setTextMode] = useState(false)
+  const [textMode, setTextMode] = useState(true)
   const [selectedRoomSize, setSelectedRoomSize] = useState(2);
   
-
   const changeChatting = () => {
     setChatting(!chatting)
     handleJoinChat()
@@ -41,7 +40,7 @@ const Buttons = ({ handleRoomSize, handleJoinChat, handleSwitchChat, handleTextM
       <div className='buttons'>
         {!chatting ? <button className='newChat' onClick={changeChatting}>Join chat</button> : (
           <>
-            <button className='newChat' onClick={handleSwitchChat}>Switch Chat</button>
+            <button className='newChat' >Switch Chat</button>
             <button className='leaveChat' onClick={changeChatting}>Leave Chat</button>
           </>
         )}

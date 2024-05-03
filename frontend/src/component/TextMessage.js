@@ -5,9 +5,8 @@ const TextMessage = (props) => {
     const message = props.message
 
     return (
-        <div>
-            <li>{sender}</li>
-            <li>{message}</li>
+        <div style={{maxWidth: "250px"}}>
+            <p style={{ wordWrap: 'break-word' }}><span style={{color:"blueviolet"}}>{sender}</span>: {message}</p>
         </div>
     )
 }
