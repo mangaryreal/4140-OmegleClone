@@ -44,12 +44,12 @@ const Main = () => {
     }*/
     const cookieList = document.cookie.split(';');
     let jwtToken = '';
-
-    cookieList.forEach(async (cookie) => {
       //back to login page if no cookie
-      if(cookieList===''){
-        navigate("/login")
-      }
+    if (document.cookie === "") {
+      navigate("/login");
+    }
+    cookieList.forEach(async (cookie) => {
+
       if (cookie.startsWith('Omeglejwtsign=')) {
         try {
             jwtToken = cookie.substr(14);
