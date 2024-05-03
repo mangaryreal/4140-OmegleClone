@@ -17,6 +17,12 @@ const TextChat = memo((props) => {
   const [message, setMessage] = useState([]);
   const [arrivalMessage, setArrivalMessage] = useState(null);
 
+  const [showReportButton, setShowReportButton] = useState(true);
+  const [showReportPopup, setShowReportPopup] = useState(false);
+  const [selectedUser, setSelectedUser] = useState('');
+  const [selectedReason, setSelectedReason] = useState("");
+  const [otherReason, setOtherReason] = useState("");
+
   useEffect(() => {
     socketRef.current = io('http://localhost:3001'); 
   }, )
@@ -126,16 +132,46 @@ const TextChat = memo((props) => {
       setInputValue('');
     }, [inputValue, username, userID])
 
+    const handleReportMenu = useCallback((username) => {
+      setSelectedUser(username);
+      setShowReportPopup(true);
+    }, []);
+
+    const handleCheckboxChange = (event) => {
+      const { value, checked } = event.target;
+    
+      if (checked) {
+        setSelectedReason(value);
+        setOtherReason(event.target.nextSibling.textContent);
+      } else {
+        setSelectedReason('');
+        setOtherReason('');
+      }
+    };
+    
+    const handleOtherReasonChange = (event) => {
+      const { value } = event.target;
+      setSelectedReason(value);
+      setOtherReason(value);
+    };
+    
+    const handleReport = () => {
+      alert(`Reason: ${selectedReason}`);
+      setShowReportPopup(false);
+      setShowReportButton(false);
+    };
+    
+    
   return (
     <div style={{ width: '100%', height: '450px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', margin: "20px 0"}}>
         <div style={{height: "120px"}}>
-          {joinChat && allUsers.map((user) => (
-            <div style={{display: "grid", height: "20px", gridTemplateColumns:"80% 20%", margin:"5px 0"}}>
-              <p style={{height: "20px"}}>{user.username}</p>
-              <button style={{height: "20px", alignSelf:"center"}}>Report</button>
-            </div>
-          ))}
-        </div>
+        {joinChat && allUsers.map((user) => (
+      <div style={{ display: "grid", height: "20px", gridTemplateColumns: "80% 20%", margin: "5px 0" }}>
+      <p style={{ height: "20px" }}>{user.username}</p>
+      <button className='report' onClick={() => handleReportMenu(user.username)} style={{ height: "20px", alignSelf: "center" }} disabled={!showReportButton}>Report</button>
+    </div>
+    ))}
+      </div>
         <div style={{ height: "300px", overflow: "auto", marginBottom: '10px' }}>
           {message.map((message, index) => (
             <TextMessage key={index} sender={message.username} message={message.message} />
@@ -151,6 +187,47 @@ const TextChat = memo((props) => {
             disabled={disabled}></input>
           <button className='sendButton' onClick={handleSendMessage} disabled={disabled}>Send</button>
         </div>
+
+
+
+        {showReportPopup && (
+  <div className="popup">
+    <p>Reporting {username} for {selectedUser}</p>
+    <div>
+      <label>
+        <input type="checkbox" name="reportReason" value="sexualContent" onChange={handleCheckboxChange} checked={selectedReason === 'sexualContent'} disabled={selectedReason !== '' && selectedReason !== 'sexualContent'} />
+        Sexual content
+      </label>
+      <br />
+      <label>
+        <input type="checkbox" name="reportReason" value="violentContent" onChange={handleCheckboxChange} checked={selectedReason === 'violentContent'} disabled={selectedReason !== '' && selectedReason !== 'violentContent'} />
+        Violent or repulsive content
+      </label>
+      <br />
+      <label>
+        <input type="checkbox" name="reportReason" value="hatefulContent" onChange={handleCheckboxChange} checked={selectedReason === 'hatefulContent'} disabled={selectedReason !== '' && selectedReason !== 'hatefulContent'} />
+        Hateful or abusive content
+      </label>
+      <br />
+      <label>
+        <input type="checkbox" name="reportReason" value="harmfulContent" onChange={handleCheckboxChange} checked={selectedReason === 'harmfulContent'} disabled={selectedReason !== '' && selectedReason !== 'harmfulContent'} />
+        Harmful or dangerous acts
+      </label>
+      <br />
+      <label>
+        Other reason:
+        <input type="text" name="otherReason" value={otherReason} onChange={handleOtherReasonChange} />
+      </label>
+    </div>
+    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "10px" }}>
+      <button onClick={() => setShowReportPopup(false)}>Cancel</button>
+      <button  onClick={handleReport} disabled={selectedReason === '' && otherReason === ''}>Report</button>
+    </div>
+  </div>
+)}
+
+
+
     </div>
   )
 })

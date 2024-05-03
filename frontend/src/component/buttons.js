@@ -28,30 +28,33 @@ const Buttons = ({ handleRoomSize, handleJoinChat, handleTextMode }) => {
     navigate("/login")*/
     alert("Logged out");
     document.cookie = `Omeglejwtsign=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-    window.location.href = '/login';
+    navigate("/login")
   }
 
-  function deleteCookie(name) {
+  /*function deleteCookie(name) {
     document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-  }
+  }*/
 
   return (
-    <div>
-      <div className='buttons'>
-        {!chatting ? <button className='newChat' onClick={changeChatting}>Join chat</button> : (
-          <>
-            <button className='newChat' >Switch Chat</button>
-            <button className='leaveChat' onClick={changeChatting}>Leave Chat</button>
-          </>
-        )}
-        {!chatting && <button className='textModeButton' onClick={changeTextMode}>{textMode ? "Text" : "Video"}</button>}
-          <label>Room Size: </label>
-          <select disabled={chatting} name='roomSize' value={selectedRoomSize} onChange={handleRoomSizeChange}>
-              <option value={2}>2</option>
-              <option value={3}>3</option>
-              <option value={4}>4</option>
-          </select>
-      </div>
+<div>
+  <div className='buttons'>
+    {!chatting ? (
+      <button className='newChat' onClick={changeChatting}>Join chat</button>
+    ) : (
+      <button className='leaveChat' onClick={changeChatting} style={{ display: 'block', margin: '0 auto' }}>
+        Leave Chat
+      </button>
+    )}
+    {!chatting && <button className='textModeButton' onClick={changeTextMode}>{textMode ? "Text" : "Video"}</button>}
+    <div className="roomSizeContainer">
+      <label>Room Size:</label>
+      <select disabled={chatting} name='roomSize' value={selectedRoomSize} onChange={handleRoomSizeChange}>
+        <option value={2}>2</option>
+        <option value={3}>3</option>
+        <option value={4}>4</option>
+      </select>
+    </div>
+  </div>
       <div style={{display: "grid", justifyContent: "center", padding: "2%"}}>
         <button className='logOutButton' onClick={handleLogout}>Logout</button>
       </div>

@@ -156,6 +156,17 @@ const VideoStreaming = (props) => {
 
   return (
     <div>
+    <div style={{ height: "120px" }}>
+    {joinChat && allUsers.map((user) => (
+    <div
+      key={user.socketID}
+      style={{ display: "flex", alignItems: "center", margin: "5px 0" }}
+    >
+      <p style={{ flex: "1", height: "20px" }}>{user.username}</p>
+      <button style={{ height: "20px" }}>Report</button>
+    </div>
+    ))}
+    </div>
       <div className="videos" style={peers.length > 0 ? {display:"grid"} : {display: "grid"}}>
         <div>
           <video className="video-grid" playsInline muted ref={userVideo} autoPlay />
