@@ -260,7 +260,7 @@ const TextChat = memo((props) => {
               </label>
               <br />
               <label>
-                Other reason:
+                Report reason:
                 <input type="text" name="otherReason" value={otherReason} onChange={handleOtherReasonChange} />
               </label>
             </div>
