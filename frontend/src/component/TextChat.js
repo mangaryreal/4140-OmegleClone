@@ -189,11 +189,11 @@ const TextChat = memo((props) => {
       if (ReportSubmission.ok) {
         const resourse = await ReportSubmission.json();
         alert(resourse.message);   
-        alert("I am now trying to disable the report button for " + resourse.reported_name + " since you reported him already");
+        //alert("I am now trying to disable the report button for " + resourse.reported_name + " since you reported him already");
         toggleButtonDisabled(resourse.reported_name);
-        alert("Yea we should be able to disable it.... " + disabledButtons.includes(resourse.reported_name));
+        //alert("Yea we should be able to disable it.... " + disabledButtons.includes(resourse.reported_name));
         setShowReportPopup(false);
-        alert("Still " + disabledButtons.includes(resourse.reported_name) +  "?");
+        //alert("Still " + disabledButtons.includes(resourse.reported_name) +  "?");
       } else {
         const resource = await ReportSubmission.json();
         alert(resource.message);
