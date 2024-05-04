@@ -41,6 +41,7 @@ router.post("/report", async (request, response) => {
             const noOfReports = countNoOfReportForUserResult.rows[0].num_reports;
 
             console.log("fetched current number of reports IS " + noOfReports)
+            let ban = false
 
             if(noOfReports == 3){
                 const sevenDaysLater = new Date(formattedDate);
@@ -49,19 +50,19 @@ router.post("/report", async (request, response) => {
                 const banValues = [true, sevenDaysLater , reported_id];
                 await client.query(bannedQuery, banValues);
                 //kick out of room here
-                //how to connect to socket and disconnect them idk
-             }
+                ban = true
+            }
             response.status(200).send({
                 message: "You (" + reporter_name + ") have successfully reported " + reported_name + " for " + report_reason,
-                reported_name: reported_name
-              });
+                reported_name: reported_name,
+                banned: ban,
+                banned_id: reported_id
+            });
          client.release();
         } catch (error) {
             console.error("An error occurred:", error);
             response.status(400).send({ message: "An error occurred. Please try again later." });
-        }
-    
-    
+        } 
 });
 
 module.exports = router

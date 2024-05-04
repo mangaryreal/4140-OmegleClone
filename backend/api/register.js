@@ -6,7 +6,7 @@ const pool = require("../dbconnect");
 
 router.post("/register", async (request, response) => {
     const {username} = request.body;
-    const userID = generateUserID();
+    let userID = generateUserID();
 
     if (!username) {
         response.status(400).send({ message: "Username is required" });
@@ -15,7 +15,19 @@ router.post("/register", async (request, response) => {
 
     try{
         const client = await pool.connect();
-        console.log("Connected to db!");
+        // console.log("Connected to db!");
+        let duplicatedUserID = 1;
+
+        do{
+            const checkUserIDQuery = `SELECT * FROM "User" WHERE USER_ID = $1`;
+            const checkUsernameResult = await client.query(checkUserIDQuery, [userID]);
+            duplicatedUserID = checkUsernameResult.rows.length
+            if (duplicatedUserID > 0){
+                userID = generateUserID();
+            }
+        } while (duplicatedUserID !== 0)
+
+        
         const checkUsernameQuery = `SELECT * FROM "User" WHERE USERNAME = $1`;
         const checkUsernameResult = await client.query(checkUsernameQuery, [username]);
     
@@ -38,8 +50,6 @@ router.post("/register", async (request, response) => {
         console.error("An error occurred:", error);
         response.status(400).send({ message: "An error occurred. Please try again later." });
     }
-
-   // response.status(200).send({userID: generateUserID()});
 
 });
 

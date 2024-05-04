@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-//import { users } from '../demo-data/data' 
 import { useNavigate } from 'react-router-dom';
 
 /*function createCookie(name, value, days) {
@@ -13,42 +12,40 @@ import { useNavigate } from 'react-router-dom';
 }*/
 
 function Login() {
-//const Login = () => {
     const [userID, setUserID] = useState("")
     const navigate = useNavigate()
 
     useEffect(() => {
-        const cookieList = document.cookie.split(';');
-        let jwtToken = '';
-        cookieList.forEach(async (cookie) => {
-            //alert("checking cookie list") can check here
-            if (cookie.startsWith('Omeglejwtsign=')) {
+        const checkCookie = async () => {
+          const jwtCookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('Omeglejwtsign='));
+          if (jwtCookie) {
             try {
-              jwtToken = cookie.substr(14);
+              const jwtToken = jwtCookie.split('=')[1];
               const res = await fetch('http://localhost:3001/protected', {
-                  method: 'POST',
-                  headers: {
-                  'Content-type': 'application/json',
-                  },
-                  body: JSON.stringify({ jwtToken: jwtToken }),
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ jwtToken }),
               });
-              
+      
               if (res.ok) {
-                  //const result = await res.json();
-                  navigate("/")
-              } 
-            } catch (e) {
-            console.error('Error');
+                navigate("/");
+              }
+            } catch (error) {
+              console.error('Error:', error);
             }
-        }});
-    }, []); // Run this effect only once on component mount
+          }
+        };
+        checkCookie();
+      }, []);
 
     const handleLogin = async (e) => {
         e.preventDefault()
 
         const requestBody = {
             userID: userID,
-          };
+        };
     
         const auth = await fetch('http://localhost:3001/login', {
             method: 'POST',
@@ -69,26 +66,10 @@ function Login() {
             alert("Going to main page....")
             navigate("/");
             return;
-        }   else {
-            const data = await auth.json();
-                alert(data.message);
-        }
-
-
-        /*const userID = parseInt(e.target.userID.value);
-      
-        const foundUser = users.find((user) => user.userID === userID);
-      
-        if (foundUser) {
-          const username = foundUser.username;
-
-          createCookie("OmegleClone", username, 0.25)
-          createCookie("OmegleCloneID", userID, 0.25)
-      
-          navigate("/");
         } else {
-          alert("User not found");
-        }*/
+            const data = await auth.json();
+            alert(data.message);
+        }
     }
 
     return (

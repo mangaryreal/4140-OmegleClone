@@ -35,8 +35,6 @@ const Register = () => {
   
     if (newUserID.ok){
       const resourse = await newUserID.json();
-      //const uid = resourse.userID;
-      //alert("UserID: " + uid);
       alert(resourse.message);
       navigate("/login");
     } else {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef,useCallback ,memo } from 'react';
 import io from 'socket.io-client';
 import Peer from 'simple-peer'
+import {useNavigate} from "react-router-dom"
 
 const Video = memo((props) => {
   const ref = useRef();
@@ -24,9 +25,10 @@ const VideoStreaming = (props) => {
     const roomSize = props.roomSize
     const joinChat = props.joinChat
     const username = props.username
-    const userID = parseInt(props.userID)
+    const userID = props.userID
     const [roomID, setRoomID] = useState(0)
     const [allUsers, setAllUsers] = useState([])
+    const navigate = useNavigate()
 
     const [disabledButtons, setDisabledButtons] = useState([]);
     const [showReportPopup, setShowReportPopup] = useState(false);
@@ -40,6 +42,7 @@ const VideoStreaming = (props) => {
       
         const handleBeforeUnload = () => {
           setAllUsers([])
+          setDisabledButtons([])
           socketRef.current.emit("disconnectTextChat", roomID, userID);
           socketRef.current.disconnect();
       
@@ -98,6 +101,14 @@ const VideoStreaming = (props) => {
               })
               setPeers(users => [...users, peer]);
             });
+
+            socketRef.current.on("banned", () => {
+              handleBeforeUnload()
+              socketRef.current.disconnect(); 
+              window.removeEventListener('beforeunload', handleBeforeUnload);
+              document.cookie = `Omeglejwtsign=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+              navigate("/banned")
+            })
       
             socketRef.current.on("receiving returned signal", payload => {
               const item = peersRef.current.find(p => p.peerID === payload.id);
@@ -114,6 +125,7 @@ const VideoStreaming = (props) => {
               console.log(username + " disconnecting")
               setPeers([])
               setAllUsers([])
+              setDisabledButtons([])
             })
           })
         } else {
@@ -129,7 +141,7 @@ const VideoStreaming = (props) => {
           handleBeforeUnload()
           window.removeEventListener('beforeunload', handleBeforeUnload);
         };
-      }, [joinChat, roomSize, userID, username, setRoomID, setAllUsers]);
+      }, [joinChat, roomSize, userID, username, setRoomID, setAllUsers, navigate]);
 
     function createPeer(userToSignal, callerID, stream) {
         const peer = new Peer({
@@ -217,11 +229,11 @@ const VideoStreaming = (props) => {
       if (ReportSubmission.ok) {
         const resourse = await ReportSubmission.json();
         alert(resourse.message);   
-        //alert("I am now trying to disable the report button for " + resourse.reported_name + " since you reported him already");
         toggleButtonDisabled(resourse.reported_name);
-        //alert("Yea we should be able to disable it.... " + disabledButtons.includes(resourse.reported_name));
         setShowReportPopup(false);
-        //alert("Still " + disabledButtons.includes(resourse.reported_name) +  "?");
+        if (resourse.banned === true){
+          socketRef.current.emit("user banned", resourse.banned_id)
+        }
       } else {
         const resource = await ReportSubmission.json();
         alert(resource.message);
@@ -253,46 +265,41 @@ const VideoStreaming = (props) => {
           </div>
         ))}
       </div>
-      {/* {joinChat && allUsers.map((user, index) => (
-        <div>
-          <p key={index}>{user.username}</p>
-        </div>
-      ))} */}
-       {showReportPopup && (
-  <div className="popup">
-    <p>You &#40;{username}&#41; are reporting {selectedUser} for</p>
-    <div>
-      <label>
-        <input type="checkbox" name="reportReason" value="sexualContent" onChange={handleCheckboxChange} checked={selectedReason === 'sexualContent'} disabled={selectedReason !== '' && selectedReason !== 'sexualContent'} />
-        Sexual content
-      </label>
-      <br />
-      <label>
-        <input type="checkbox" name="reportReason" value="violentContent" onChange={handleCheckboxChange} checked={selectedReason === 'violentContent'} disabled={selectedReason !== '' && selectedReason !== 'violentContent'} />
-        Violent or repulsive content
-      </label>
-      <br />
-      <label>
-        <input type="checkbox" name="reportReason" value="hatefulContent" onChange={handleCheckboxChange} checked={selectedReason === 'hatefulContent'} disabled={selectedReason !== '' && selectedReason !== 'hatefulContent'} />
-        Hateful or abusive content
-      </label>
-      <br />
-      <label>
-        <input type="checkbox" name="reportReason" value="harmfulContent" onChange={handleCheckboxChange} checked={selectedReason === 'harmfulContent'} disabled={selectedReason !== '' && selectedReason !== 'harmfulContent'} />
-        Harmful or dangerous acts
-      </label>
-      <br />
-      <label>
-        Other reason:
-        <input type="text" name="otherReason" value={otherReason} onChange={handleOtherReasonChange} />
-      </label>
-    </div>
-    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "10px" }}>
-      <button onClick={() => setShowReportPopup(false)}>Cancel</button>
-      <button  onClick={handleReport} disabled={selectedReason === '' && otherReason === ''}>Report</button>
-    </div>
-  </div>
-)}
+        {showReportPopup && (
+          <div className="popup">
+            <p>You &#40;{username}&#41; are reporting {selectedUser} for</p>
+            <div>
+              <label>
+                <input type="checkbox" name="reportReason" value="sexualContent" onChange={handleCheckboxChange} checked={selectedReason === 'sexualContent'} disabled={selectedReason !== '' && selectedReason !== 'sexualContent'} />
+                Sexual content
+              </label>
+              <br />
+              <label>
+                <input type="checkbox" name="reportReason" value="violentContent" onChange={handleCheckboxChange} checked={selectedReason === 'violentContent'} disabled={selectedReason !== '' && selectedReason !== 'violentContent'} />
+                Violent or repulsive content
+              </label>
+              <br />
+              <label>
+                <input type="checkbox" name="reportReason" value="hatefulContent" onChange={handleCheckboxChange} checked={selectedReason === 'hatefulContent'} disabled={selectedReason !== '' && selectedReason !== 'hatefulContent'} />
+                Hateful or abusive content
+              </label>
+              <br />
+              <label>
+                <input type="checkbox" name="reportReason" value="harmfulContent" onChange={handleCheckboxChange} checked={selectedReason === 'harmfulContent'} disabled={selectedReason !== '' && selectedReason !== 'harmfulContent'} />
+                Harmful or dangerous acts
+              </label>
+              <br />
+              <label>
+                Other reason:
+                <input type="text" name="otherReason" value={otherReason} onChange={handleOtherReasonChange} />
+              </label>
+            </div>
+            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "10px" }}>
+              <button onClick={() => setShowReportPopup(false)}>Cancel</button>
+              <button  onClick={handleReport} disabled={selectedReason === '' && otherReason === ''}>Report</button>
+            </div>
+          </div>
+        )}
     </div>
   );
 };

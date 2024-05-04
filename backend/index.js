@@ -123,6 +123,20 @@ io.on('connection', socket => {
     }
   })
 
+  socket.on("user banned", userID => {
+    const bannedUserRooms = getRoomsByUserID(userID);
+    const bannedUsername = getBannedUserUsername(userID);
+    bannedUserRooms.forEach(room => {
+      room.users.forEach(user => {
+        if (user.userID === userID) {
+          io.to(user.socketID).emit("banned");
+        } else {
+          io.to(user.socketID).emit("userLeft", bannedUsername);
+        }
+      });
+    });
+  });
+
   socket.on('disconnect', () => {
     // console.log("Hello, someone disconnecting");
     const roomID = socket.roomID;
@@ -152,6 +166,30 @@ function generateRoomID() {
 
   return roomID;
 }
+
+function getRoomsByUserID(userID) {
+  const rooms = [];
+  for (const roomID in users) {
+    const room = users[roomID];
+    const matchedUser = room.users.find(user => user.userID === userID);
+    if (matchedUser) {
+      rooms.push(room);
+    }
+  }
+  return rooms;
+}
+
+function getBannedUserUsername(userID) {
+  for (const roomID in users) {
+    const room = users[roomID];
+    const matchedUser = room.users.find(user => user.userID === userID);
+    if (matchedUser) {
+      return matchedUser.username;
+    }
+  }
+  return null;
+}
+
 
 server.listen(3001, () => console.log('server is running on port 3001'));
 

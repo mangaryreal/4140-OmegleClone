@@ -11,72 +11,43 @@ const Main = () => {
   const [userID, setUserID] = useState('')
   const [username, setUsername] = useState('')
   const [textMode, setTextMode] = useState(true)
-  /// add a useState for the allUsers from the video streaming
 
 
   const handleJoinChat = () => {
     setJoinChat(!joinChat)
   }
 
-  /*function getCookie(name) {
-    const cookieString = decodeURIComponent(document.cookie);
-    const cookies = cookieString.split(';');
-  
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-  
-      // Check if the cookie starts with the provided name
-      if (cookie.startsWith(name + '=')) {
-        // Get the value by removing the name and equal sign
-        return cookie.substring(name.length + 1);
-      }
-    }
-  
-    return null;
-  }*/
-
-  const chekcAuth = () => {
-    /*setUsername(getCookie("OmegleClone"))
-    setUserID(getCookie("OmegleCloneID"))
-
-    if (username === null || userID === null){
-      navigate("/login")
-    }*/
-    const cookieList = document.cookie.split(';');
-    let jwtToken = '';
-      //back to login page if no cookie
-    if (document.cookie === "") {
+  const checkAuth = async () => {
+    const jwtCookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('Omeglejwtsign='));
+    
+    if (document.cookie === "" || !jwtCookie) {
       navigate("/login");
+      return;
     }
-    cookieList.forEach(async (cookie) => {
-
-      if (cookie.startsWith('Omeglejwtsign=')) {
-        try {
-            jwtToken = cookie.substr(14);
-            const res = await fetch('http://localhost:3001/protected', {
-                method: 'POST',
-                headers: {
-                'Content-type': 'application/json',
-                },
-                body: JSON.stringify({ jwtToken: jwtToken }),
-            });
-
-            if (res.ok) {
-                const result = await res.json();
-                setUserID(result.decode.userId);
-                setUsername(result.decode.username);
-            }
-          } catch (e) {
-          console.error('Error');
-        }
+  
+    try {
+      const jwtToken = jwtCookie.split('=')[1];
+      const res = await fetch('http://localhost:3001/protected', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ jwtToken }),
+      });
+  
+      if (res.ok) {
+        const { decode } = await res.json();
+        setUserID(decode.userID);
+        console.log(decode.userID)
+        setUsername(decode.username);
       }
-
-    });
-
-  }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
   
   useEffect(() => {
-    chekcAuth();
+    checkAuth();
   },[])
 
   const handleRoomSize = (size) => {
@@ -110,12 +81,6 @@ const Main = () => {
                 handleRoomSize={handleRoomSize} 
                 handleTextMode={handleTextMode}
               ></Buttons>
-              {/**
-               * For the topic choice, you could add a handler for the buttons
-               * 
-               * You could add a div here to show the users (namely "User List") in the video chat like how the text chat created
-               * Also, you need to add handler to the video streaming to pass the user info through the Main.js to the "User list"
-               */}
             {textMode && 
             <div className='chatRoom'>
                 <TextChat
