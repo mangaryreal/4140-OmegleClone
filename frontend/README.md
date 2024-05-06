@@ -1,13 +1,25 @@
-# Getting Started with Create React App
+# Omegle Clone (CSCI4140 Project Group 4)
+This is Omegle Clone Project with multipeople chat and support report button. 
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Teammates / Authors
+- [Anthony LO](https://github.com/anthonylol06) 
+- [Gary Man](https://github.com/mangaryreal) 
 
-## Available Scripts
+## Highlishts
+- Multipeople Video and Text Chat: We could support up to 4 people to join the room. 
+- Keep anomity: The project aims to keep the adequate anomity for users to chat with each others. 
+- Report button: Users could report the users who behaves unwell. Toxic users will receive panelty that cannot login our service in case-by-case basis.
 
-In the project directory, you can run:
+## Progress
+- [X] Video Chat
+- [ ] Text Chat
+- [ ] Login and Regsiter
+- [ ] Report button
 
-### `npm start`
+## License
+This project is protected by the Apache 2.0 license.
 
+<<<<<<<< HEAD:frontend/README.md
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
@@ -68,3 +80,7 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+========
+## Contribution
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+>>>>>>>> Functions-Gary:README.md
