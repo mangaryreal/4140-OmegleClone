@@ -12,14 +12,13 @@ This is Omegle Clone Project with multipeople chat and support report button.
 
 ## Progress
 - [X] Video Chat
-- [ ] Text Chat
-- [ ] Login and Regsiter
-- [ ] Report button
+- [X] Text Chat
+- [X] Login and Regsiter
+- [X] Report button
 
 ## License
 This project is protected by the Apache 2.0 license.
 
-<<<<<<<< HEAD:frontend/README.md
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
@@ -83,4 +82,3 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 ========
 ## Contribution
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
->>>>>>>> Functions-Gary:README.md
