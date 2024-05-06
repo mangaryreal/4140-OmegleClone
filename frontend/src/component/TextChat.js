@@ -60,6 +60,7 @@ const TextChat = memo((props) => {
       })
   
       socketRef.current.on("new user joined", a => {
+        if (a.username === null) return;
         setAllUsers(prevUsers => [...prevUsers, a]);
         const message = a.username + " join the chat";
         const k = "Server";
@@ -91,6 +92,7 @@ const TextChat = memo((props) => {
     };
 
     socketRef.current.on("userLeft", uname => {
+      if (uname.username === null) return;
       const message = uname + " left the chat"
       const k = "Server"
       const newMessage = {
