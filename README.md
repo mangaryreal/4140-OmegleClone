@@ -29,6 +29,11 @@ Database: PostgreSQL
 - [x] Login and Regsiter
 - [x] Report button
 
+## How to run the docker-compose?
+```bash 
+docker-compose up
+```
+
 ## License
 
 This project is protected by the Apache 2.0 license.
