@@ -1,5 +1,6 @@
 const express = require("express");
 const http = require("http");
+const pool = require("./dbconnect");
 
 const app = express();
 const cors = require("cors");
@@ -31,7 +32,7 @@ const io = require("socket.io")(server, {
   },
 });
 
-var users = {};
+var users = {}; 
 
 var socketToRoom = {};
 
@@ -190,8 +191,41 @@ function getBannedUserUsername(userID) {
   return null;
 }
 
+async function serverInit() {
+  const client = await pool.connect();
+  try {
+    client.query('CREATE TABLE IF NOT EXISTS "User" ( \
+      USER_ID VARCHAR(50) PRIMARY KEY, \
+      USERNAME VARCHAR(50) NOT NULL UNIQUE, \
+      SUSPENDED BOOLEAN DEFAULT FALSE, \
+      SUSPENDED_UNTIL TIMESTAMP DEFAULT NULL, \
+      NO_OF_REPORTS INTEGER DEFAULT 0 \
+    )');
+    client.query('CREATE TABLE IF NOT EXISTS "Report" ( \
+      REPORT_ID SERIAL PRIMARY KEY, \
+      REPORT_DATE TIMESTAMP NOT NULL, \
+      REPORT_REASON VARCHAR(255) NOT NULL, \
+      REPORTER_ID VARCHAR(50) REFERENCES "User"(USER_ID), \
+      REPORTED_USERID VARCHAR(50) REFERENCES "User"(USER_ID) \
+    )');
+  } catch (error) {
+    console.error('Error initializing database:', error);
+  }
+  finally {
+    client.release();
+  }
+  console.log('Database initialized');
+}
 
-server.listen(3001, () => console.log('server is running on port 3001'));
+
+server.listen(3001, async () => {
+  try {
+    await serverInit();
+    console.log('server is running on port 3001')
+  } catch (error) {
+    console.error('Error starting server:', error);
+  }
+});
 
 app.get('/', (req, res) => {
   res.send(users)
