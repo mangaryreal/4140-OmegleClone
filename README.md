@@ -18,9 +18,9 @@ This is Omegle Clone Project with multipeople chat and support report button.
 - Report button: Users could report the users who behaves unwell. Toxic users will receive panelty that cannot login our service in case-by-case basis.
 
 ## Tech Stack
-Frontend: React JS
-Backend: Express JS + Socket.IO
-Database: PostgreSQL
+- Frontend: React JS
+- Backend: Express JS + Socket.IO
+- Database: PostgreSQL
 
 ## Progress
 
