@@ -9,7 +9,7 @@ This is Omegle Clone Project with multipeople chat and support report button.
 ## Teammates / Authors
 
 - [Anthony LO](https://github.com/anthonylol06)
-- [Gary Man](https://github.com/mangaryreal)
+- [Gary MAN](https://github.com/mangaryreal)
 
 ## Highlights
 
